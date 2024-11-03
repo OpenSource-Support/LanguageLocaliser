@@ -1,0 +1,16 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+     {
+            "name": "LanguageLocaliser",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build",
+            "program": "${workspaceFolder}/LanguageLocaliser/bin/Debug/net9.0/LanguageLocaliser.exe",
+            "args": [],
+            "cwd": "${workspaceFolder}",
+            "stopAtEntry": false,
+            "console": "internalConsole"
+        },
+    ],
+}
