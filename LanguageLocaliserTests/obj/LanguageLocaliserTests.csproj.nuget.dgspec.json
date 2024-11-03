@@ -1,0 +1,154 @@
+{
+  "format": 1,
+  "restore": {
+    "H:\\Programming\\LanguageLocaliser\\LanguageLocaliserTests\\LanguageLocaliserTests.csproj": {}
+  },
+  "projects": {
+    "H:\\Programming\\LanguageLocaliser\\LanguageLocaliserTests\\LanguageLocaliserTests.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "H:\\Programming\\LanguageLocaliser\\LanguageLocaliserTests\\LanguageLocaliserTests.csproj",
+        "projectName": "LanguageLocaliserTests",
+        "projectPath": "H:\\Programming\\LanguageLocaliser\\LanguageLocaliserTests\\LanguageLocaliserTests.csproj",
+        "packagesPath": "C:\\Users\\Aaron\\.nuget\\packages\\",
+        "outputPath": "H:\\Programming\\LanguageLocaliser\\LanguageLocaliserTests\\obj\\",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "C:\\Users\\Aaron\\AppData\\Roaming\\NuGet\\NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "net9.0"
+        ],
+        "sources": {
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net9.0": {
+            "targetAlias": "net9.0",
+            "projectReferences": {
+              "H:\\Programming\\LanguageLocaliser\\LanguageLocaliser\\LanguageLocaliser.csproj": {
+                "projectPath": "H:\\Programming\\LanguageLocaliser\\LanguageLocaliser\\LanguageLocaliser.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "all"
+        },
+        "SdkAnalysisLevel": "9.0.100"
+      },
+      "frameworks": {
+        "net9.0": {
+          "targetAlias": "net9.0",
+          "dependencies": {
+            "Microsoft.NET.Test.Sdk": {
+              "target": "Package",
+              "version": "[17.11.1, )"
+            },
+            "NUnit.Analyzers": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers",
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[4.3.0, )"
+            },
+            "NUnit3TestAdapter": {
+              "target": "Package",
+              "version": "[4.6.0, )"
+            },
+            "coverlet.collector": {
+              "target": "Package",
+              "version": "[6.0.0, )"
+            },
+            "nunit": {
+              "target": "Package",
+              "version": "[4.2.2, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.100-rc.2.24474.11/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "H:\\Programming\\LanguageLocaliser\\LanguageLocaliser\\LanguageLocaliser.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "H:\\Programming\\LanguageLocaliser\\LanguageLocaliser\\LanguageLocaliser.csproj",
+        "projectName": "LanguageLocaliser",
+        "projectPath": "H:\\Programming\\LanguageLocaliser\\LanguageLocaliser\\LanguageLocaliser.csproj",
+        "packagesPath": "C:\\Users\\Aaron\\.nuget\\packages\\",
+        "outputPath": "H:\\Programming\\LanguageLocaliser\\LanguageLocaliser\\obj\\",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "C:\\Users\\Aaron\\AppData\\Roaming\\NuGet\\NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "net9.0"
+        ],
+        "sources": {
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net9.0": {
+            "targetAlias": "net9.0",
+            "projectReferences": {}
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "all"
+        },
+        "SdkAnalysisLevel": "9.0.100"
+      },
+      "frameworks": {
+        "net9.0": {
+          "targetAlias": "net9.0",
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.100-rc.2.24474.11/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    }
+  }
+}

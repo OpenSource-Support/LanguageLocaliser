@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LanguageLocaliser", "LanguageLocaliser\LanguageLocaliser.csproj", "{1E8FA786-A441-4D81-AFBB-F69EAE479A5D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LanguageLocaliserTests", "LanguageLocaliserTests\LanguageLocaliserTests.csproj", "{D42494C6-EAF1-43DB-9206-DDB7061ADC20}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{1E8FA786-A441-4D81-AFBB-F69EAE479A5D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1E8FA786-A441-4D81-AFBB-F69EAE479A5D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1E8FA786-A441-4D81-AFBB-F69EAE479A5D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1E8FA786-A441-4D81-AFBB-F69EAE479A5D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D42494C6-EAF1-43DB-9206-DDB7061ADC20}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D42494C6-EAF1-43DB-9206-DDB7061ADC20}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D42494C6-EAF1-43DB-9206-DDB7061ADC20}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D42494C6-EAF1-43DB-9206-DDB7061ADC20}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
