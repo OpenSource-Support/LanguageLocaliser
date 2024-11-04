@@ -3,22 +3,24 @@ namespace LanguageLocaliser
     /// <summary>
     /// Identifies Locale information
     /// </summary>
-    public struct LocaleInfo : IEquatable<LocaleInfo>
+    /// <param name="language">The language for the item (e.g. en)</param>
+    /// <param name="region">The region for the item (e.g. US)</param>
+    public struct LocaleInfo(string language, string region, string name = null) : IEquatable<LocaleInfo>
     {
         /// <summary>
         /// The readable name for the locale, e.g. English (US)
         /// </summary>
-        public string Name;
+        public string Name = name;
 
         /// <summary>
         /// The language code for the locale, e.g. en
         /// </summary>
-        public string Language;
+        public readonly string Language = language;
 
         /// <summary>
         /// The region for the locale, e.g. US
         /// </summary>
-        public string Region;
+        public readonly string Region = region;
 
         /// <summary>
         /// Determines if the locale has all information filled in
@@ -34,9 +36,9 @@ namespace LanguageLocaliser
         /// <summary>
         /// Gets the ID in the format {langCode}_{region}
         /// </summary>
-        public string Id 
+        public string Id
         {
-            get 
+            get
             {
                 return $"{Language}_{Region}";
             }
@@ -71,17 +73,19 @@ namespace LanguageLocaliser
         }
 
         /// <summary>
-        /// Creates a new localisation information item
+        /// Creates a new Locale Information from its Id in the form [language]_[region]
         /// </summary>
-        /// <param name="language">The language for the item (e.g. en)</param>
-        /// <param name="region">The region for the item (e.g. US)</param>
-        /// <returns></returns>
-        public static LocaleInfo Create(string language, string region)
+        /// <param name="id">The id to create the locale info for</param>
+        /// <param name="name">The name associated with the locale</param>
+        /// <returns>The new locale info or null if id is not valid</returns>
+        public static LocaleInfo? Create(string id, string name = null)
         {
-            return new LocaleInfo() {
-                Language = language,
-                Region = region
-            };
+            var parts = id.Split('_');
+
+            if (parts.Length == 2)
+                return new LocaleInfo(parts[0], parts[1], name);
+
+            return null;
         }
 
         /// <summary>
@@ -92,6 +96,28 @@ namespace LanguageLocaliser
         public override bool Equals(object obj)
         {
             return obj is LocaleInfo info && Equals(info);
+        }
+
+        /// <summary>
+        /// Determines if two locale informations are equal
+        /// </summary>
+        /// <param name="left">The first to compare</param>
+        /// <param name="right">The second to compare</param>
+        /// <returns>True if the locale informations are equal</returns>
+        public static bool operator ==(LocaleInfo left, LocaleInfo right)
+        {
+            return left.Equals(right);
+        }
+
+        /// <summary>
+        /// Determine if two locale informations are not equal
+        /// </summary>
+        /// <param name="left">The first to compare</param>
+        /// <param name="right">The second to compare</param>
+        /// <returns>True if the locale informations are not equal</returns>
+        public static bool operator !=(LocaleInfo left, LocaleInfo right)
+        {
+            return !(left == right);
         }
     }
 }

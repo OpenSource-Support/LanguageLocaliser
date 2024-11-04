@@ -19,7 +19,7 @@ namespace LanguageLocaliser
         /// <summary>
         /// Creates a new set of Ryjinx translation items
         /// </summary>
-        public RyujinxTranslationItems()
+        public RyujinxTranslationItems(ILogger logger = null) : base(logger)
         {
             // Don't upset the existing order for git diff reasons
             _defaultFileSortOption = SortOption.OriginalOrder;
@@ -35,8 +35,8 @@ namespace LanguageLocaliser
         /// <returns>A list of additional name value combinations for the start of the json output</returns>
         protected override IEnumerable<NameValue> GetAdditionalHeaderValues(LocaleInfo localeInfo)
         {
-            return 
-                new NameValue[] { new NameValue() { Name = _languageName, Value = localeInfo.Name }}
+            return
+                new NameValue[] { new NameValue() { Name = _languageName, Value = localeInfo.Name } }
                 .Concat(base.GetAdditionalHeaderValues(localeInfo));
         }
 
@@ -88,42 +88,51 @@ namespace LanguageLocaliser
         {
             base.FilterJsonBeforeWrite(ref json, options);
 
-            json = 
+            json =
                 json
                 .Replace(@"\u00A0", Convert.ToChar(0x00A0).ToString())
                 + (options?.NewLine ?? Environment.NewLine);
         }
 
+        /// <summary>
+        /// Gets a set of testable translations to check for comparison against existing translation values
+        /// </summary>
+        /// <param name="sourceLocale">The source locale to use as the test point</param>
+        /// <returns>An enumerable of translation items to test</returns>
         public IEnumerable<Translation> TestableTranslations(LocaleInfo sourceLocale)
         {
             return base.TestableTranslations(sourceLocale, (item) => !item.Text.Contains('{') && item.Text.Where(ch => ch == ' ').Count() >= 2);
         }
 
-        public void CheckLanguages()
+        /// <summary>
+        /// Checks one item from each language from the soure English US Locale to confirm the translation values are the same
+        /// </summary>
+        public void CheckLanguageTranslations()
         {
-            var testTranslations = TestableTranslations(LocaleInfo.Create("en", "US"));
-            var testResults = new GoogleTranslator().Translate(testTranslations.Where(tt => tt.From.Valid));
+            var testTranslations = TestableTranslations(new LocaleInfo("en", "US"));
+            var testResults = new GoogleTranslator(Logger).Translate(testTranslations.Where(tt => tt.From.Valid));
 
-            foreach(var tr in testResults)
+            foreach (var tr in testResults)
             {
-                var tt = 
+                var tt =
                     testTranslations
                     .Where(ttitem => ttitem.ToLocale.Equals(tr.Locale))
                     .FirstOrDefault();
 
                 if (!tt.From.Valid)
                 {
-                    Console.WriteLine($"Could not find testable translation for language {tt.ToLocale}");
+                    Logger?.WriteLine($"Could not find testable translation for language {tt.ToLocale}");
                 }
-                else 
+                else
                 {
                     var existingValue = this[tt.From.Name, tt.ToLocale];
                     if (existingValue != tr.Text)
                     {
-                        Console.WriteLine($"Translation from {tt.From} to {tt.ToLocale} failed conversion test with existing value being '{existingValue}' and new value being '{tr.Text}'.");
+                        Logger?.WriteLine($"Translation from {tt.From} to {tt.ToLocale} failed conversion test with existing value being '{existingValue}' and new value being '{tr.Text}'.");
                     }
                 }
             }
         }
+
     }
 }

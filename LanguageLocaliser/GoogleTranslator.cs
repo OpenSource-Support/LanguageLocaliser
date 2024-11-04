@@ -8,9 +8,11 @@ namespace LanguageLocaliser
     /// <summary>
     /// Encapsulates a translator that uses the public Google translation End Point
     /// </summary>
-    public class GoogleTranslator : ITranslator
+    public class GoogleTranslator(ILogger logger = null) : ITranslator
     {
         private static readonly HttpClient httpClient = new HttpClient();
+
+        public ILogger Logger { get; set; } = logger;
 
         /// <summary>
         /// Translates multiple source texts to a specific destination language
@@ -19,11 +21,11 @@ namespace LanguageLocaliser
         /// <param name="targetLang">The destination language code (e.g. en, es)</param>
         /// <param name="texts">The texts to translate from sourceLang to targetLang</param>
         /// <returns>An array of strings containing the translated text</returns>
-        public static async Task<string[]> TranslateTextsAsync(string sourceLang, string targetLang, IEnumerable<String> texts)
+        public async Task<string[]> TranslateTextsAsync(string sourceLang, string targetLang, IEnumerable<String> texts)
         {
             try
             {
-                Console.WriteLine($"Requesting translation from {sourceLang} to {targetLang} for: \r\n- {String.Join("\r\n- ", texts)}");
+                Logger?.WriteLine($"Requesting translation from {sourceLang} to {targetLang} for: \r\n- {String.Join("\r\n- ", texts)}");
 
                 var encodedTexts = string.Join("&q=", texts.Select(t => Uri.EscapeDataString(t)));
                 string url = $"https://translate.googleapis.com/translate_a/t?client=gtx&sl={sourceLang}&tl={targetLang}&dt=t&q={encodedTexts}";
@@ -35,7 +37,7 @@ namespace LanguageLocaliser
                 response.EnsureSuccessStatusCode();
 
                 var jsonResponse = await response.Content.ReadAsStringAsync();
-                Console.WriteLine($"Response - {jsonResponse}");
+                Logger?.WriteLine($"Response - {jsonResponse}");
 
                 var result = JsonDocument.Parse(jsonResponse);
 
@@ -46,11 +48,25 @@ namespace LanguageLocaliser
 
                 return translations;
             }
-            catch(Exception e)
+            catch (Exception e)
             {
-                Console.WriteLine(e.ToString());
+                Logger?.WriteLine(e.ToString());
                 throw;
             }
+        }
+
+        /// <summary>
+        /// Translates multiple source texts to a specific destination language
+        /// </summary>
+        /// <param name="sourceLang">The source language code (e.g. en, es)</param>
+        /// <param name="targetLang">The destination language code (e.g. en, es)</param>
+        /// <param name="texts">The texts to translate from sourceLang to targetLang</param>
+        /// <returns>An array of strings containing the translated text</returns>
+        public string[] TranslateTexts(string sourceLang, string targetLang, IEnumerable<String> texts)
+        {
+            var task = TranslateTextsAsync(sourceLang, targetLang, texts);
+            task.Wait();
+            return task.Result;
         }
 
         /// <summary>
@@ -65,6 +81,11 @@ namespace LanguageLocaliser
             return task.Result;
         }
 
+        /// <summary>
+        /// Gets the language for a specific Locale Information object
+        /// </summary>
+        /// <param name="locale">The locale information to get the language for</param>
+        /// <returns>The language code for google translage for the locale</returns>
         public static string LanguageFor(LocaleInfo locale)
         {
             return $"{locale.Language}-{locale.Region}";
@@ -79,17 +100,17 @@ namespace LanguageLocaliser
         {
             var result = new List<TranslationItem>();
 
-            foreach(var sourceLang in items.Select(i => LanguageFor(i.From.Locale)).Distinct())
+            foreach (var sourceLang in items.Select(i => LanguageFor(i.From.Locale)).Distinct())
             {
-                foreach(var targetLang in items.Where(i => LanguageFor(i.From.Locale) == sourceLang).Select(i => LanguageFor(i.ToLocale)).Distinct())
+                foreach (var targetLang in items.Where(i => LanguageFor(i.From.Locale) == sourceLang).Select(i => LanguageFor(i.ToLocale)).Distinct())
                 {
                     var toTranslate = items.Where(i => LanguageFor(i.From.Locale) == sourceLang && LanguageFor(i.ToLocale) == targetLang);
                     var translation = await TranslateTextsAsync(sourceLang, targetLang, toTranslate.Select(i => i.From.Text));
-                    result.AddRange(toTranslate.Select((i, idx) => new TranslationItem() 
-                    { 
-                        Locale = i.ToLocale, 
-                        Name = i.From.Name, 
-                        Text = translation[idx] 
+                    result.AddRange(toTranslate.Select((i, idx) => new TranslationItem()
+                    {
+                        Locale = i.ToLocale,
+                        Name = i.From.Name,
+                        Text = translation[idx]
                     }));
                 }
             }

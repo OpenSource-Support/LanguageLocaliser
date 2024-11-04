@@ -11,7 +11,7 @@ namespace LanguageLocaliser
         /// <returns>The numerical index of the item or -1 if not found.</returns>
         public static int FirstIndexOf<T>(this IEnumerable<T> items, Func<int, T, bool> matchedOn)
         {
-            return 
+            return
                 items.Select((value, index) => new { value, index })
                 .Where(pair => matchedOn(pair.index, pair.value))
                 .Select(pair => (int?)pair.index)

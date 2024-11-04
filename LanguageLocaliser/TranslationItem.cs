@@ -9,7 +9,7 @@ namespace LanguageLocaliser
         /// The source locale for the item
         /// </summary>
         public LocaleInfo Locale;
-        
+
         /// <summary>
         /// The name for the item
         /// </summary>
@@ -32,8 +32,14 @@ namespace LanguageLocaliser
         {
         }
 
+        /// <summary>
+        /// Returns true if a Translation Item is completed and valid
+        /// </summary>
         public bool Valid => Locale.Valid && !String.IsNullOrEmpty(Name) && !String.IsNullOrEmpty(Text);
 
+        /// <summary>
+        /// Returns a human readable string for the translation item
+        /// </summary>
         public override readonly string ToString()
         {
             return $"[Name='{Name}', Locale='{Locale}', Order='{Order}', Text='{Text}']";

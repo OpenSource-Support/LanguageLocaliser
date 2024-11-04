@@ -7,7 +7,7 @@ using static LanguageLocaliser.ITranslator;
 
 namespace LanguageLocaliser
 {
-    public class TranslationItems
+    public class TranslationItems(ILogger logger = null)
     {
         /// <summary>
         /// Default Json file extension
@@ -91,6 +91,11 @@ namespace LanguageLocaliser
         /// The default file encoding to use when savint to a file
         /// </summary>
         protected Encoding _defaultFileEncoding = Encoding.UTF8;
+
+        /// <summary>
+        /// Gets or sets the logger to use
+        /// </summary>
+        public ILogger Logger { get; set; } = logger;
 
         /// <summary>
         /// Reads the data from a json element
@@ -210,13 +215,9 @@ namespace LanguageLocaliser
         /// <returns>A partially created locale info object</returns>
         protected virtual void UpdateLocaleForFilename(ref LocaleInfo localeInfo, string filename)
         {
-            var fileParts = Path.GetFileNameWithoutExtension(filename).Split('_');
-
-            if (fileParts.Length == 2)
-            {
-                localeInfo.Language = fileParts[0];
-                localeInfo.Region = fileParts[1];
-            }
+            var newLocale = LocaleInfo.Create(Path.GetFileNameWithoutExtension(filename));
+            if (newLocale.HasValue)
+                localeInfo = newLocale.Value;
         }
 
         /// <summary>
@@ -272,49 +273,69 @@ namespace LanguageLocaliser
         {
             var orderedItems =
                 _items.Values
-                .Where(v => v.ContainsKey(localeInfo))
-                .Select(v => v[localeInfo])
-                .OrderBy(i => i.Order)
-                .Select((i, idx) => new { item = i, idx = idx });
+                // Get the dictionary items which have entries for the required locale
+                .Where(localeDict => localeDict.ContainsKey(localeInfo))
+                // Select the items only for the matching locale
+                .Select(localeDict => localeDict[localeInfo])
+                // Order by the order in the file
+                .OrderBy(item => item.Order)
+                // Select item and index in the order
+                .Select((item, index) => new { item, index });
 
+            // If no items were found for the locale
             if (!orderedItems.Any())
                 return 1.0;
 
+            // Calculate the order value for the item if it needs to go last
             var endOrder = orderedItems.Max(i => i.item.Order) + 1.0;
+            // Calculate the order value for the item if it needs to go first
             var startOrder = orderedItems.First().item.Order / 2.0;
 
             var namesMatching =
                 orderedItems
-                .Select(i => new { i.item, i.idx, matched = name.CountMatching(i.item.Name) });
+                // Select each item, its index and the number of shared contiguous characters at the start of the name
+                .Select(i => new { i.item, i.index, matched = name.CountMatching(i.item.Name) });
 
+            // Maixmum number of characters matched by other names
             double maxMatching = namesMatching.Max(i => i.matched);
+
+            // If no characters were matched
             if (maxMatching == 0)
             {
+                // If first item name is greater than the the name
                 if (String.Compare(orderedItems.First().item.Name, name) > 0)
-                {
+                    // Put item at start   
                     return startOrder;
-                }
                 else
-                {
+                    // Put item at end
                     return endOrder;
-                }
             }
 
+            // Names that match the maximum length of characters
             var namesMatchingLength =
                 namesMatching
+                // Include only the items that match the maximum number of characters
                 .Where(i => i.matched == maxMatching);
 
+            // First item index that matches after this item
             var firstAfter =
                 namesMatchingLength
+                // Skip items that are smaller than the name
                 .SkipWhile(i => String.Compare(i.item.Name, name) < 0)
+                // Take the first item larger than the name
                 .Take(1)
-                .Select(i => (int?)i.idx)
+                // Select its index only
+                .Select(i => (int?)i.index)
+                // Get the first or null value
                 .FirstOrDefault()
-                ?? namesMatchingLength.Last().idx + 1;
+                // If no first was found then use the last index of the matched items + 1
+                ?? namesMatchingLength.Last().index + 1;
 
+            // If the index puts the item at the end of the entire list
             if (firstAfter >= orderedItems.Count())
                 return endOrder;
 
+            // If the index puts the item at the start of the entire list
             if (firstAfter == 0)
                 return startOrder;
 
@@ -357,7 +378,7 @@ namespace LanguageLocaliser
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"An error occurred: {ex.Message}");
+                Logger?.WriteLine($"An error occurred: {ex.Message}");
             }
         }
 
@@ -444,7 +465,7 @@ namespace LanguageLocaliser
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"An error occurred: {ex.Message}");
+                Logger?.WriteLine($"An error occurred: {ex.Message}");
             }
         }
 
@@ -541,12 +562,22 @@ namespace LanguageLocaliser
 
             return
                 needed
+                // For each needed translation create a Translation object
                 .Select(neededItem => new
                 {
                     name = neededItem.Key,
-                    sourceItem = GetItem(neededItem.Key, prefLocales.FirstOrDefault(locale => found[neededItem.Key].Contains(locale.Value)) ?? found[neededItem.Key].First()),
+                    sourceItem = GetItem(
+                        neededItem.Key,
+                        prefLocales
+                        // Get the preferred locale for this item
+                        .FirstOrDefault(locale => found[neededItem.Key].Contains(locale.Value)) ?? found[neededItem.Key].First()
+                    ),
                     destinationLocales = neededItem.Value
-                }).SelectMany(item => item.destinationLocales.Select(dl => new Translation() { From = item.sourceItem, ToLocale = dl }));
+                })
+                // Flatten out so source and destination lcoale
+                .SelectMany(item => item
+                    .destinationLocales
+                    .Select(destLocale => new Translation() { From = item.sourceItem, ToLocale = destLocale }));
         }
 
         /// <summary>
@@ -559,9 +590,13 @@ namespace LanguageLocaliser
         {
             return
                 _items
+                // Get all items which have translations for the lcoale
                 .Where(item => item.Value.ContainsKey(localeInfo))
+                // Sort them by order if needed
                 .OrderBy(item => sortOption == SortOption.OriginalOrder ? item.Value[localeInfo].Order : 0)
+                // Sort them by name
                 .ThenBy(item => item.Value[localeInfo].Name)
+                // Select the translation items only
                 .Select(item => item.Value[localeInfo]);
         }
 
@@ -605,26 +640,33 @@ namespace LanguageLocaliser
         /// </summary>
         /// <param name="sourceLocale">The source locale to use for testing</param>
         /// <returns>A list of Translations for each destination locale that is not the source</returns>
+        /// <remarks>Items which don not have a valid From field are not testable as they do not have any testable destination locales form the source locale<remarks>
         public IEnumerable<Translation> TestableTranslations(LocaleInfo sourceLocale, Func<TranslationItem, bool> isTestable)
         {
             var testableSourceItems =
                 _items
+                // Get all items which are for the locale requested
                 .Where(item => item.Value.ContainsKey(sourceLocale))
+                // Convert to TranslationItems
                 .Select(item => item.Value[sourceLocale])
-                .Where(item => isTestable(item));
+                // Return only the items which are considered testable
+                .Where(item => isTestable == null || isTestable(item));
 
             return
                 _locales
-                .Where(destLocale => !destLocale.Equals(sourceLocale))
+                // Exclude locales from source locale
+                .Where(destLocale => destLocale != sourceLocale)
+                // Create translation for each testable source lcoale
                 .Select(destLocale => new ITranslator.Translation()
-                    {
-                        ToLocale = destLocale,
-                        From = 
+                {
+                    ToLocale = destLocale,
+                    From =
                             testableSourceItems
+                            // Only include items which have a mapping to the destination lcoale
                             .Where(item => _items[item.Name].ContainsKey(destLocale))
-                            .Select(item => item)
+                            // Select the first or default from each
                             .FirstOrDefault()
-                    }
+                }
                 );
         }
 
@@ -637,9 +679,13 @@ namespace LanguageLocaliser
             {
                 return
                     _locales
+                    // Cross join and flatten each locale with all items
                     .SelectMany(locale => _items.Select(item => new { NamedItems = item, Locale = locale }))
+                    // Only include locale-items which are missing translations for that locale
                     .Where(item => !item.NamedItems.Value.ContainsKey(item.Locale))
+                    // Group the missing translations by name, selecting a list of missing locales for each name
                     .GroupBy(item => item.NamedItems.Key, item => item.Locale)
+                    // Convert to a dictionary keyed on the Locale with enumerable items that are missing for that locale
                     .ToImmutableDictionary(item => item.Key, item => (IEnumerable<LocaleInfo>)item);
             }
         }

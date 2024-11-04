@@ -17,8 +17,14 @@ namespace LanguageLocaliser
             /// </summary>
             public LocaleInfo ToLocale;
 
+            /// <summary>
+            /// Gets whether the information in the translation item is complete and valid
+            /// </summary>
             public bool Valid => ToLocale.Valid && From.Valid;
 
+            /// <summary>
+            /// Converts the translation item to a human readable format
+            /// </summary>
             public override readonly string ToString()
             {
                 return $"[From='{From}', ToLocale='{ToLocale}']";
